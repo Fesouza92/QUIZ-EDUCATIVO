@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz Matemático para Crianças</title>
+    <title>Quiz Educativo para Crianças</title>
     <style>
         * {
             margin: 0;
@@ -44,11 +44,11 @@
             font-size: 1.2em;
         }
 
-        .start-screen, .mode-screen, .quiz-screen, .result-screen, .multiplayer-screen {
+        .start-screen, .subject-screen, .mode-screen, .quiz-screen, .result-screen, .multiplayer-screen {
             display: none;
         }
 
-        .start-screen.active, .mode-screen.active, .quiz-screen.active, .result-screen.active, .multiplayer-screen.active {
+        .start-screen.active, .subject-screen.active, .mode-screen.active, .quiz-screen.active, .result-screen.active, .multiplayer-screen.active {
             display: block;
         }
 
@@ -85,6 +85,14 @@
 
         .btn-multiplayer {
             background: linear-gradient(45deg, #a29bfe, #6c5ce7);
+        }
+
+        .btn-portugues {
+            background: linear-gradient(45deg, #fd79a8, #e84393);
+        }
+
+        .btn-matematica {
+            background: linear-gradient(45deg, #fdcb6e, #e17055);
         }
 
         .question {
@@ -288,31 +296,44 @@
     <div class="container">
         <!-- Tela de Início -->
         <div class="start-screen active">
-            <h1>🧮 Quiz Matemático do Felipe 🧮</h1>
-            <p class="subtitle">Divirta-se aprendendo matemática!</p>
+            <h1>🎓 Quiz Educativo 🎓</h1>
+            <p class="subtitle">Divirta-se aprendendo!</p>
             <p style="color: #718096; margin-bottom: 30px;">Para crianças de 7 a 12 anos</p>
             
             <div style="margin: 30px 0;">
-                <h3 style="color: #4a5568; margin-bottom: 15px;">Escolha o modo de jogo:</h3>
-                <button class="btn" onclick="showModeScreen()">Jogador Único</button>
-                <button class="btn btn-multiplayer" onclick="startMultiplayer()">Dois Jogadores</button>
+                <h3 style="color: #4a5568; margin-bottom: 15px;">Escolha a matéria:</h3>
+                <button class="btn btn-portugues" onclick="showSubjectScreen('portugues')">📚 Português</button>
+                <button class="btn btn-matematica" onclick="showSubjectScreen('matematica')">🧮 Matemática</button>
             </div>
             
             <div style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 15px;">
                 <h4 style="color: #4a5568; margin-bottom: 10px;">Como jogar:</h4>
                 <ul style="text-align: left; color: #718096; line-height: 1.6;">
-                    <li>✅ Escolha o modo de jogo</li>
-                    <li>🧮 Resolva as questões matemáticas</li>
+                    <li>✅ Escolha a matéria (Português ou Matemática)</li>
+                    <li>🎮 Escolha o modo de jogo (1 ou 2 jogadores)</li>
+                    <li>🧮 Resolva as questões</li>
                     <li>⏱️ Você tem 30 segundos para cada pergunta</li>
                     <li>🏆 Ganhe pontos e estrelas!</li>
-                    <li>👥 No modo multiplayer, compita com um amigo!</li>
                 </ul>
             </div>
         </div>
 
+        <!-- Tela de Seleção de Matéria -->
+        <div class="subject-screen">
+            <h2 id="subjectTitle">📚 Português</h2>
+            <p style="color: #718096; margin-bottom: 30px;">Escolha o modo de jogo</p>
+            
+            <div style="margin: 30px 0;">
+                <button class="btn" onclick="showModeScreen()">🎯 Jogador Único</button>
+                <button class="btn btn-multiplayer" onclick="startMultiplayer()">👥 Dois Jogadores</button>
+            </div>
+            
+            <button class="btn btn-secondary" onclick="showStartScreen()">Voltar ao Início</button>
+        </div>
+
         <!-- Tela de Seleção de Modo (Jogador Único) -->
         <div class="mode-screen">
-            <h2>🎯 Modo Jogador Único</h2>
+            <h2 id="modeTitle">🎯 Modo Jogador Único</h2>
             <p style="color: #718096; margin-bottom: 30px;">Escolha o nível de dificuldade</p>
             
             <div style="margin: 30px 0;">
@@ -320,7 +341,7 @@
                 <button class="btn btn-secondary" onclick="startQuiz('medio')">Médio (10-12 anos)</button>
             </div>
             
-            <button class="btn btn-secondary" onclick="showStartScreen()">Voltar ao Início</button>
+            <button class="btn btn-secondary" onclick="showSubjectScreen()">Voltar</button>
         </div>
 
         <!-- Tela do Quiz (Jogador Único) -->
@@ -367,7 +388,7 @@
 
         <!-- Tela Multiplayer -->
         <div class="multiplayer-screen">
-            <h2>👥 Modo Dois Jogadores</h2>
+            <h2 id="multiplayerTitle">👥 Modo Dois Jogadores</h2>
             <p style="color: #718096; margin-bottom: 30px;">Escolha o nível e comece a competir!</p>
             
             <div style="margin: 30px 0;">
@@ -376,15 +397,129 @@
                 <button class="btn btn-secondary" onclick="startMultiplayerQuiz('medio')">Médio (10-12 anos)</button>
             </div>
             
-            <button class="btn btn-secondary" onclick="showStartScreen()">Voltar ao Início</button>
+            <button class="btn btn-secondary" onclick="showSubjectScreen()">Voltar</button>
         </div>
     </div>
 
     <script>
-        // Configurações do quiz
-        const quizConfig = {
+        // Configurações do quiz de português
+        const portuguesConfig = {
             facil: {
-                name: "Fácil",
+                name: "Português Fácil",
+                questions: [
+                    {
+                        question: "Qual é o plural de 'casa'?",
+                        options: ["casas", "casa", "casos", "casais"],
+                        correct: 0
+                    },
+                    {
+                        question: "Complete: 'Eu _____ estudar português.'",
+                        options: ["gosto", "gosta", "gostam", "gostamos"],
+                        correct: 0
+                    },
+                    {
+                        question: "Qual é o antônimo de 'grande'?",
+                        options: ["enorme", "pequeno", "alto", "largo"],
+                        correct: 1
+                    },
+                    {
+                        question: "Qual palavra tem acento?",
+                        options: ["casa", "mesa", "café", "bola"],
+                        correct: 2
+                    },
+                    {
+                        question: "Complete: 'A menina _____ bonita.'",
+                        options: ["é", "são", "está", "estão"],
+                        correct: 0
+                    },
+                    {
+                        question: "Qual é o feminino de 'menino'?",
+                        options: ["menina", "meninas", "meninos", "menininhos"],
+                        correct: 0
+                    },
+                    {
+                        question: "Qual palavra rima com 'bola'?",
+                        options: ["casa", "escola", "cola", "mesa"],
+                        correct: 2
+                    },
+                    {
+                        question: "Complete: 'Nós _____ amigos.'",
+                        options: ["sou", "é", "são", "está"],
+                        correct: 2
+                    },
+                    {
+                        question: "Qual é o plural de 'livro'?",
+                        options: ["livros", "livro", "livrinhos", "livrão"],
+                        correct: 0
+                    },
+                    {
+                        question: "Qual palavra tem 3 sílabas?",
+                        options: ["casa", "escola", "livro", "bola"],
+                        correct: 1
+                    }
+                ]
+            },
+            medio: {
+                name: "Português Médio",
+                questions: [
+                    {
+                        question: "Qual é o sinônimo de 'alegre'?",
+                        options: ["triste", "feliz", "cansado", "bravo"],
+                        correct: 1
+                    },
+                    {
+                        question: "Complete: 'Se eu _____ tempo, eu _____ ao cinema.'",
+                        options: ["tenho, vou", "tivesse, iria", "teria, fui", "tive, vou"],
+                        correct: 1
+                    },
+                    {
+                        question: "Qual palavra é um substantivo abstrato?",
+                        options: ["casa", "amor", "carro", "livro"],
+                        correct: 1
+                    },
+                    {
+                        question: "Qual é o aumentativo de 'casa'?",
+                        options: ["casinha", "casa", "casarão", "casal"],
+                        correct: 2
+                    },
+                    {
+                        question: "Complete: '_____ que você venha à festa.'",
+                        options: ["Espero", "Espera", "Esperam", "Esperamos"],
+                        correct: 0
+                    },
+                    {
+                        question: "Qual palavra é um verbo no infinitivo?",
+                        options: ["correndo", "correu", "correr", "corre"],
+                        correct: 2
+                    },
+                    {
+                        question: "Qual é o plural de 'papel'?",
+                        options: ["papéis", "papel", "papéis", "papelões"],
+                        correct: 2
+                    },
+                    {
+                        question: "Complete: 'Eles _____ muito bem.'",
+                        options: ["estuda", "estudam", "estudo", "estudamos"],
+                        correct: 1
+                    },
+                    {
+                        question: "Qual palavra é um adjetivo?",
+                        options: ["rapidamente", "rapidez", "rápido", "rapidar"],
+                        correct: 2
+                    },
+                    {
+                        question: "Qual é o diminutivo de 'cão'?",
+                        options: ["cãozinho", "cão", "cães", "cãezinhos"],
+                        correct: 0
+                    }
+                ]
+            }
+        };
+
+        // Configurações do quiz de matemática
+        const matematicaConfig = {
+            facil: {
+                name: "Matemática Fácil",
                 questions: [
                     {
                         question: "Quanto é 5 + 3?",
@@ -439,7 +574,7 @@
                 ]
             },
             medio: {
-                name: "Médio",
+                name: "Matemática Média",
                 questions: [
                     {
                         question: "Quanto é 25 + 37?",
@@ -495,15 +630,14 @@
             }
         };
 
-        // Variáveis para modo jogador único
+        // Variáveis globais
+        let currentSubject = '';
         let currentLevel = '';
         let currentQuestion = 0;
         let score = 0;
         let timer;
         let timeLeft = 30;
         let questions = [];
-
-        // Variáveis para modo multiplayer
         let multiplayerMode = false;
         let currentPlayer = 1;
         let player1Score = 0;
@@ -512,12 +646,14 @@
         let player2Name = "Jogador 2";
 
         function showStartScreen() {
-            document.querySelectorAll('.start-screen, .mode-screen, .quiz-screen, .result-screen, .multiplayer-screen').forEach(screen => {
+            document.querySelectorAll('.start-screen, .subject-screen, .mode-screen, .quiz-screen, .result-screen, .multiplayer-screen').forEach(screen => {
                 screen.classList.remove('active');
             });
             document.querySelector('.start-screen').classList.add('active');
             
             // Reset de todas as variáveis
+            currentSubject = '';
+            currentLevel = '';
             currentQuestion = 0;
             score = 0;
             timeLeft = 30;
@@ -528,20 +664,38 @@
             player2Score = 0;
         }
 
-        function showModeScreen() {
+        function showSubjectScreen(subject) {
+            currentSubject = subject;
+            const subjectTitle = document.getElementById('subjectTitle');
+            const subjectName = subject === 'portugues' ? '📚 Português' : '🧮 Matemática';
+            subjectTitle.textContent = subjectName;
+            
             document.querySelector('.start-screen').classList.remove('active');
+            document.querySelector('.subject-screen').classList.add('active');
+        }
+
+        function showModeScreen() {
+            const modeTitle = document.getElementById('modeTitle');
+            const subjectName = currentSubject === 'portugues' ? 'Português' : 'Matemática';
+            modeTitle.textContent = `🎯 Modo Jogador Único - ${subjectName}`;
+            
+            document.querySelector('.subject-screen').classList.remove('active');
             document.querySelector('.mode-screen').classList.add('active');
         }
 
         function startMultiplayer() {
-            document.querySelector('.start-screen').classList.remove('active');
+            const multiplayerTitle = document.getElementById('multiplayerTitle');
+            const subjectName = currentSubject === 'portugues' ? 'Português' : 'Matemática';
+            multiplayerTitle.textContent = `👥 Modo Dois Jogadores - ${subjectName}`;
+            
+            document.querySelector('.subject-screen').classList.remove('active');
             document.querySelector('.multiplayer-screen').classList.add('active');
         }
 
         function startMultiplayerQuiz(level) {
             multiplayerMode = true;
             currentLevel = level;
-            questions = quizConfig[level].questions;
+            questions = getQuestions(currentSubject, level);
             currentQuestion = 0;
             currentPlayer = 1;
             player1Score = 0;
@@ -551,14 +705,23 @@
             showMultiplayerQuiz();
         }
 
+        function getQuestions(subject, level) {
+            if (subject === 'portugues') {
+                return portuguesConfig[level].questions;
+            } else {
+                return matematicaConfig[level].questions;
+            }
+        }
+
         function showMultiplayerQuiz() {
             const question = questions[currentQuestion];
+            const subjectName = currentSubject === 'portugues' ? 'Português' : 'Matemática';
             
             // Criar interface multiplayer
             const container = document.querySelector('.container');
             container.innerHTML = `
-                <h2>👥 Quiz Matemático - Dois Jogadores</h2>
-                <p style="color: #718096; margin-bottom: 20px;">Nível: ${quizConfig[currentLevel].name}</p>
+                <h2>👥 Quiz de ${subjectName} - Dois Jogadores</h2>
+                <p style="color: #718096; margin-bottom: 20px;">Nível: ${currentLevel === 'facil' ? 'Fácil' : 'Médio'}</p>
                 
                 <div class="turn-indicator">
                     🎯 Vez do ${currentPlayer === 1 ? player1Name : player2Name}!
@@ -726,11 +889,11 @@
             showMultiplayerQuiz();
         }
 
-        // Funções para modo jogador único (mantidas do código original)
+        // Funções para modo jogador único
         function startQuiz(level) {
             multiplayerMode = false;
             currentLevel = level;
-            questions = quizConfig[level].questions;
+            questions = getQuestions(currentSubject, level);
             currentQuestion = 0;
             score = 0;
             
@@ -902,9 +1065,9 @@
             // Mensagem final baseada na pontuação
             let message = '';
             if (percentage >= 90) {
-                message = 'Excelente! Você é um gênio da matemática! 🧠✨';
+                message = 'Excelente! Você é um gênio! 🧠✨';
             } else if (percentage >= 70) {
-                message = 'Muito bem! Você tem um ótimo conhecimento matemático! 🎯';
+                message = 'Muito bem! Você tem um ótimo conhecimento! 🎯';
             } else if (percentage >= 50) {
                 message = 'Bom trabalho! Continue praticando para melhorar! 💪';
             } else {

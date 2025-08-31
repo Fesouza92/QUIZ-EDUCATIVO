@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Matemático para Crianças</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            max-width: 700px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: #4a5568;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .subtitle {
+            color: #718096;
+            margin-bottom: 30px;
+            font-size: 1.2em;
+        }
+
+        .start-screen, .mode-screen, .quiz-screen, .result-screen, .multiplayer-screen {
+            display: none;
+        }
+
+        .start-screen.active, .mode-screen.active, .quiz-screen.active, .result-screen.active, .multiplayer-screen.active {
+            display: block;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            border-radius: 50px;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #74b9ff, #0984e3);
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #00b894, #00a085);
+        }
+
+        .btn-multiplayer {
+            background: linear-gradient(45deg, #a29bfe, #6c5ce7);
+        }
+
+        .question {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border-left: 5px solid #667eea;
+        }
+
+        .question-text {
+            font-size: 1.5em;
+            color: #2d3748;
+            margin-bottom: 20px;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .option {
+            background: white;
+            border: 3px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1em;
+            color: #4a5568;
+        }
+
+        .option:hover {
+            border-color: #667eea;
+            background: #f7fafc;
+            transform: translateY(-2px);
+        }
+
+        .option.selected {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
+        .option.correct {
+            border-color: #00b894;
+            background: #00b894;
+            color: white;
+        }
+
+        .option.incorrect {
+            border-color: #e74c3c;
+            background: #e74c3c;
+            color: white;
+        }
+
+        .progress {
+            background: #e2e8f0;
+            height: 10px;
+            border-radius: 5px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+
+        .score {
+            font-size: 1.3em;
+            color: #4a5568;
+            margin: 20px 0;
+        }
+
+        .timer {
+            background: #ff6b6b;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            display: inline-block;
+            margin: 10px;
+            font-weight: bold;
+        }
+
+        .feedback {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .stars {
+            font-size: 2em;
+            margin: 20px 0;
+        }
+
+        .star {
+            color: #ffd700;
+            margin: 0 5px;
+        }
+
+        .star.empty {
+            color: #e2e8f0;
+        }
+
+        .player-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 15px 0;
+            border: 3px solid transparent;
+        }
+
+        .player-info.active {
+            border-color: #667eea;
+            background: #e8f4fd;
+        }
+
+        .player-info.player1 {
+            border-left-color: #ff6b6b;
+        }
+
+        .player-info.player2 {
+            border-left-color: #74b9ff;
+        }
+
+        .player-name {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .player-score {
+            font-size: 1.1em;
+            color: #4a5568;
+        }
+
+        .turn-indicator {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 25px;
+            margin: 20px 0;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .winner-announcement {
+            background: linear-gradient(45deg, #00b894, #00a085);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+
+        .tie-announcement {
+            background: linear-gradient(45deg, #fdcb6e, #e17055);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .options {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Tela de Início -->
+        <div class="start-screen active">
+            <h1>🧮 Quiz Matemático 🧮</h1>
+            <p class="subtitle">Divirta-se aprendendo matemática!</p>
+            <p style="color: #718096; margin-bottom: 30px;">Para crianças de 7 a 12 anos</p>
+            
+            <div style="margin: 30px 0;">
+                <h3 style="color: #4a5568; margin-bottom: 15px;">Escolha o modo de jogo:</h3>
+                <button class="btn" onclick="showModeScreen()">Jogador Único</button>
+                <button class="btn btn-multiplayer" onclick="startMultiplayer()">Dois Jogadores</button>
+            </div>
+            
+            <div style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 15px;">
+                <h4 style="color: #4a5568; margin-bottom: 10px;">Como jogar:</h4>
+                <ul style="text-align: left; color: #718096; line-height: 1.6;">
+                    <li>✅ Escolha o modo de jogo</li>
+                    <li>🧮 Resolva as questões matemáticas</li>
+                    <li>⏱️ Você tem 30 segundos para cada pergunta</li>
+                    <li>🏆 Ganhe pontos e estrelas!</li>
+                    <li>👥 No modo multiplayer, compita com um amigo!</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Tela de Seleção de Modo (Jogador Único) -->
+        <div class="mode-screen">
+            <h2>🎯 Modo Jogador Único</h2>
+            <p style="color: #718096; margin-bottom: 30px;">Escolha o nível de dificuldade</p>
+            
+            <div style="margin: 30px 0;">
+                <button class="btn" onclick="startQuiz('facil')">Fácil (7-9 anos)</button>
+                <button class="btn btn-secondary" onclick="startQuiz('medio')">Médio (10-12 anos)</button>
+            </div>
+            
+            <button class="btn btn-secondary" onclick="showStartScreen()">Voltar ao Início</button>
+        </div>
+
+        <!-- Tela do Quiz (Jogador Único) -->
+        <div class="quiz-screen">
+            <h2>Questão <span id="questionNumber">1</span> de <span id="totalQuestions">10</span></h2>
+            
+            <div class="progress">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            
+            <div class="timer" id="timer">30s</div>
+            
+            <div class="question">
+                <div class="question-text" id="questionText"></div>
+                <div class="options" id="options"></div>
+            </div>
+            
+            <div class="score">Pontuação: <span id="currentScore">0</span></div>
+            
+            <div id="feedback" class="feedback" style="display: none;"></div>
+            
+            <button class="btn" id="nextBtn" style="display: none;" onclick="nextQuestion()">Próxima Questão</button>
+        </div>
+
+        <!-- Tela de Resultados (Jogador Único) -->
+        <div class="result-screen">
+            <h2>🎉 Quiz Concluído! 🎉</h2>
+            
+            <div class="stars" id="stars"></div>
+            
+            <div class="score">
+                <h3>Sua pontuação final: <span id="finalScore">0</span></h3>
+                <p>Acertos: <span id="correctAnswers">0</span> de <span id="totalCorrect">10</span></p>
+            </div>
+            
+            <div style="margin: 30px 0;">
+                <h4 style="color: #4a5568; margin-bottom: 15px;">Parabéns!</h4>
+                <p style="color: #718096; line-height: 1.6;" id="finalMessage"></p>
+            </div>
+            
+            <button class="btn" onclick="restartQuiz()">Jogar Novamente</button>
+            <button class="btn btn-secondary" onclick="showStartScreen()">Voltar ao Início</button>
+        </div>
+
+        <!-- Tela Multiplayer -->
+        <div class="multiplayer-screen">
+            <h2>👥 Modo Dois Jogadores</h2>
+            <p style="color: #718096; margin-bottom: 30px;">Escolha o nível e comece a competir!</p>
+            
+            <div style="margin: 30px 0;">
+                <h3 style="color: #4a5568; margin-bottom: 15px;">Escolha o nível:</h3>
+                <button class="btn" onclick="startMultiplayerQuiz('facil')">Fácil (7-9 anos)</button>
+                <button class="btn btn-secondary" onclick="startMultiplayerQuiz('medio')">Médio (10-12 anos)</button>
+            </div>
+            
+            <button class="btn btn-secondary" onclick="showStartScreen()">Voltar ao Início</button>
+        </div>
+    </div>
+
+    <script>
+        // Configurações do quiz
+        const quizConfig = {
+            facil: {
+                name: "Fácil",
+                questions: [
+                    {
+                        question: "Quanto é 5 + 3?",
+                        options: ["6", "7", "8", "9"],
+                        correct: 2
+                    },
+                    {
+                        question: "Quanto é 10 - 4?",
+                        options: ["4", "5", "6", "7"],
+                        correct: 2
+                    },
+                    {
+                        question: "Quanto é 2 × 4?",
+                        options: ["6", "7", "8", "9"],
+                        correct: 2
+                    },
+                    {
+                        question: "Quanto é 12 ÷ 3?",
+                        options: ["3", "4", "5", "6"],
+                        correct: 1
+                    },
+                    {
+                        question: "Quanto é 7 + 5?",
+                        options: ["10", "11", "12", "13"],
+                        correct: 2
+                    },
+                    {
+                        question: "Quanto é 15 - 8?",
+                        options: ["5", "6", "7", "8"],
+                        correct: 2
+                    },
+                    {
+                        question: "Quanto é 3 × 6?",
+                        options: ["15", "16", "17", "18"],
+                        correct: 3
+                    },
+                    {
+                        question: "Quanto é 20 ÷ 4?",
+                        options: ["4", "5", "6", "7"],
+                        correct: 1
+                    },
+                    {
+                        question: "Quanto é 9 + 6?",
+                        options: ["13", "14", "15", "16"],
+                        correct: 2
+                    },
+                    {
+                        question: "Quanto é 18 - 9?",
+                        options: ["7", "8", "9", "10"],
+                        correct: 2
+                    }
+                ]
+            },
+            medio: {
+                name: "Médio",
+                questions: [
+                    {
+                        question: "Quanto é 25 + 37?",
+                        options: ["60", "61", "62", "63"],
+                        correct: 2
+                    },
+                    {
+                        question: "Quanto é 84 - 29?",
+                        options: ["53", "54", "55", "56"],
+                        correct: 2
+                    },
+                    {
+                        question: "Quanto é 7 × 8?",
+                        options: ["54", "55", "56", "57"],
+                        correct: 2
+                    },
+                    {
+                        question: "Quanto é 72 ÷ 9?",
+                        options: ["7", "8", "9", "10"],
+                        correct: 1
+                    },
+                    {
+                        question: "Quanto é 156 + 44?",
+                        options: ["190", "200", "210", "220"],
+                        correct: 1
+                    },
+                    {
+                        question: "Quanto é 200 - 67?",
+                        options: ["123", "133", "143", "153"],
+                        correct: 1
+                    },
+                    {
+                        question: "Quanto é 12 × 11?",
+                        options: ["120", "130", "132", "142"],
+                        correct: 2
+                    },
+                    {
+                        question: "Quanto é 144 ÷ 12?",
+                        options: ["10", "11", "12", "13"],
+                        correct: 2
+                    },
+                    {
+                        question: "Quanto é 89 + 156?",
+                        options: ["235", "245", "255", "265"],
+                        correct: 1
+                    },
+                    {
+                        question: "Quanto é 300 - 89?",
+                        options: ["201", "211", "221", "231"],
+                        correct: 1
+                    }
+                ]
+            }
+        };
+
+        // Variáveis para modo jogador único
+        let currentLevel = '';
+        let currentQuestion = 0;
+        let score = 0;
+        let timer;
+        let timeLeft = 30;
+        let questions = [];
+
+        // Variáveis para modo multiplayer
+        let multiplayerMode = false;
+        let currentPlayer = 1;
+        let player1Score = 0;
+        let player2Score = 0;
+        let player1Name = "Jogador 1";
+        let player2Name = "Jogador 2";
+
+        function showStartScreen() {
+            document.querySelectorAll('.start-screen, .mode-screen, .quiz-screen, .result-screen, .multiplayer-screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.querySelector('.start-screen').classList.add('active');
+            
+            // Reset de todas as variáveis
+            currentQuestion = 0;
+            score = 0;
+            timeLeft = 30;
+            clearInterval(timer);
+            multiplayerMode = false;
+            currentPlayer = 1;
+            player1Score = 0;
+            player2Score = 0;
+        }
+
+        function showModeScreen() {
+            document.querySelector('.start-screen').classList.remove('active');
+            document.querySelector('.mode-screen').classList.add('active');
+        }
+
+        function startMultiplayer() {
+            document.querySelector('.start-screen').classList.remove('active');
+            document.querySelector('.multiplayer-screen').classList.add('active');
+        }
+
+        function startMultiplayerQuiz(level) {
+            multiplayerMode = true;
+            currentLevel = level;
+            questions = quizConfig[level].questions;
+            currentQuestion = 0;
+            currentPlayer = 1;
+            player1Score = 0;
+            player2Score = 0;
+            
+            document.querySelector('.multiplayer-screen').classList.remove('active');
+            showMultiplayerQuiz();
+        }
+
+        function showMultiplayerQuiz() {
+            const question = questions[currentQuestion];
+            
+            // Criar interface multiplayer
+            const container = document.querySelector('.container');
+            container.innerHTML = `
+                <h2>👥 Quiz Matemático - Dois Jogadores</h2>
+                <p style="color: #718096; margin-bottom: 20px;">Nível: ${quizConfig[currentLevel].name}</p>
+                
+                <div class="turn-indicator">
+                    🎯 Vez do ${currentPlayer === 1 ? player1Name : player2Name}!
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; margin: 20px 0;">
+                    <div class="player-info player1 ${currentPlayer === 1 ? 'active' : ''}">
+                        <div class="player-name">${player1Name}</div>
+                        <div class="player-score">Pontuação: ${player1Score}</div>
+                    </div>
+                    <div class="player-info player2 ${currentPlayer === 2 ? 'active' : ''}">
+                        <div class="player-name">${player2Name}</div>
+                        <div class="player-score">Pontuação: ${player2Score}</div>
+                    </div>
+                </div>
+                
+                <div class="progress">
+                    <div class="progress-bar" style="width: ${((currentQuestion + 1) / questions.length) * 100}%"></div>
+                </div>
+                
+                <div class="timer" id="timer">30s</div>
+                
+                <div class="question">
+                    <div class="question-text">Questão ${currentQuestion + 1} de ${questions.length}: ${question.question}</div>
+                    <div class="options" id="options"></div>
+                </div>
+                
+                <div id="feedback" class="feedback" style="display: none;"></div>
+                
+                <button class="btn" id="nextBtn" style="display: none;" onclick="nextMultiplayerQuestion()">Próxima Questão</button>
+            `;
+            
+            // Adicionar opções
+            const optionsContainer = document.getElementById('options');
+            question.options.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'option';
+                optionDiv.textContent = option;
+                optionDiv.onclick = () => selectMultiplayerOption(index);
+                optionsContainer.appendChild(optionDiv);
+            });
+            
+            document.getElementById('nextBtn').style.display = 'none';
+            document.getElementById('feedback').style.display = 'none';
+            
+            // Reset timer
+            timeLeft = 30;
+            startTimer();
+        }
+
+        function selectMultiplayerOption(selectedIndex) {
+            const question = questions[currentQuestion];
+            const options = document.querySelectorAll('.option');
+            
+            // Desabilitar todas as opções
+            options.forEach(option => {
+                option.style.pointerEvents = 'none';
+            });
+            
+            // Marcar a opção selecionada
+            options[selectedIndex].classList.add('selected');
+            
+            // Verificar se está correta
+            if (selectedIndex === question.correct) {
+                options[selectedIndex].classList.add('correct');
+                if (currentPlayer === 1) {
+                    player1Score += 10;
+                } else {
+                    player2Score += 10;
+                }
+                showMultiplayerFeedback('Parabéns! Resposta correta! 🎉', 'correct');
+            } else {
+                options[selectedIndex].classList.add('incorrect');
+                options[question.correct].classList.add('correct');
+                showMultiplayerFeedback('Ops! A resposta correta é: ' + question.options[question.correct], 'incorrect');
+            }
+            
+            // Parar o timer
+            clearInterval(timer);
+            
+            // Mostrar botão para próxima questão
+            document.getElementById('nextBtn').style.display = 'inline-block';
+            
+            // Atualizar pontuações na tela
+            updateMultiplayerScores();
+        }
+
+        function showMultiplayerFeedback(message, type) {
+            const feedback = document.getElementById('feedback');
+            feedback.textContent = message;
+            feedback.className = `feedback ${type}`;
+            feedback.style.display = 'block';
+        }
+
+        function updateMultiplayerScores() {
+            const player1Info = document.querySelector('.player-info.player1 .player-score');
+            const player2Info = document.querySelector('.player-info.player2 .player-score');
+            
+            if (player1Info) player1Info.textContent = `Pontuação: ${player1Score}`;
+            if (player2Info) player2Info.textContent = `Pontuação: ${player2Score}`;
+        }
+
+        function nextMultiplayerQuestion() {
+            currentQuestion++;
+            
+            if (currentQuestion < questions.length) {
+                // Alternar jogador
+                currentPlayer = currentPlayer === 1 ? 2 : 1;
+                showMultiplayerQuiz();
+            } else {
+                showMultiplayerResults();
+            }
+        }
+
+        function showMultiplayerResults() {
+            const container = document.querySelector('.container');
+            let winnerMessage = '';
+            let winnerClass = '';
+            
+            if (player1Score > player2Score) {
+                winnerMessage = `🏆 ${player1Name} venceu com ${player1Score} pontos!`;
+                winnerClass = 'winner-announcement';
+            } else if (player2Score > player1Score) {
+                winnerMessage = `🏆 ${player2Name} venceu com ${player2Score} pontos!`;
+                winnerClass = 'winner-announcement';
+            } else {
+                winnerMessage = `🤝 Empate! Ambos marcaram ${player1Score} pontos!`;
+                winnerClass = 'tie-announcement';
+            }
+            
+            container.innerHTML = `
+                <h2>🎉 Quiz Multiplayer Concluído! 🎉</h2>
+                
+                <div class="${winnerClass}">
+                    ${winnerMessage}
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; margin: 30px 0;">
+                    <div class="player-info player1">
+                        <div class="player-name">${player1Name}</div>
+                        <div class="player-score">Pontuação Final: ${player1Score}</div>
+                        <div class="stars">
+                            ${'⭐'.repeat(Math.min(5, Math.ceil(player1Score / 20)))}
+                        </div>
+                    </div>
+                    <div class="player-info player2">
+                        <div class="player-name">${player2Name}</div>
+                        <div class="player-score">Pontuação Final: ${player2Score}</div>
+                        <div class="stars">
+                            ${'⭐'.repeat(Math.min(5, Math.ceil(player2Score / 20)))}
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="btn" onclick="restartMultiplayerQuiz()">Jogar Novamente</button>
+                <button class="btn btn-secondary" onclick="showStartScreen()">Voltar ao Início</button>
+            `;
+        }
+
+        function restartMultiplayerQuiz() {
+            currentQuestion = 0;
+            currentPlayer = 1;
+            player1Score = 0;
+            player2Score = 0;
+            showMultiplayerQuiz();
+        }
+
+        // Funções para modo jogador único (mantidas do código original)
+        function startQuiz(level) {
+            multiplayerMode = false;
+            currentLevel = level;
+            questions = quizConfig[level].questions;
+            currentQuestion = 0;
+            score = 0;
+            
+            document.querySelector('.mode-screen').classList.remove('active');
+            document.querySelector('.quiz-screen').classList.add('active');
+            
+            showQuestion();
+            startTimer();
+        }
+
+        function showQuestion() {
+            const question = questions[currentQuestion];
+            document.getElementById('questionNumber').textContent = currentQuestion + 1;
+            document.getElementById('totalQuestions').textContent = questions.length;
+            document.getElementById('questionText').textContent = question.question;
+            document.getElementById('currentScore').textContent = score;
+            
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'option';
+                optionDiv.textContent = option;
+                optionDiv.onclick = () => selectOption(index);
+                optionsContainer.appendChild(optionDiv);
+            });
+            
+            document.getElementById('nextBtn').style.display = 'none';
+            document.getElementById('feedback').style.display = 'none';
+            
+            // Reset timer
+            timeLeft = 30;
+            updateTimer();
+        }
+
+        function selectOption(selectedIndex) {
+            const question = questions[currentQuestion];
+            const options = document.querySelectorAll('.option');
+            
+            // Desabilitar todas as opções
+            options.forEach(option => {
+                option.style.pointerEvents = 'none';
+            });
+            
+            // Marcar a opção selecionada
+            options[selectedIndex].classList.add('selected');
+            
+            // Verificar se está correta
+            if (selectedIndex === question.correct) {
+                options[selectedIndex].classList.add('correct');
+                score += 10;
+                showFeedback('Parabéns! Resposta correta! 🎉', 'correct');
+            } else {
+                options[selectedIndex].classList.add('incorrect');
+                options[question.correct].classList.add('correct');
+                showFeedback('Ops! A resposta correta é: ' + question.options[question.correct], 'incorrect');
+            }
+            
+            // Parar o timer
+            clearInterval(timer);
+            
+            // Mostrar botão para próxima questão
+            document.getElementById('nextBtn').style.display = 'inline-block';
+            
+            // Atualizar pontuação
+            document.getElementById('currentScore').textContent = score;
+        }
+
+        function showFeedback(message, type) {
+            const feedback = document.getElementById('feedback');
+            feedback.textContent = message;
+            feedback.className = `feedback ${type}`;
+            feedback.style.display = 'block';
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            
+            if (currentQuestion < questions.length) {
+                showQuestion();
+                startTimer();
+            } else {
+                showResults();
+            }
+        }
+
+        function startTimer() {
+            clearInterval(timer);
+            timer = setInterval(() => {
+                timeLeft--;
+                updateTimer();
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    timeUp();
+                }
+            }, 1000);
+        }
+
+        function updateTimer() {
+            const timerElement = document.getElementById('timer');
+            if (timerElement) {
+                timerElement.textContent = timeLeft + 's';
+                
+                // Mudar cor do timer quando estiver acabando
+                if (timeLeft <= 10) {
+                    timerElement.style.background = '#e74c3c';
+                } else if (timeLeft <= 20) {
+                    timerElement.style.background = '#f39c12';
+                } else {
+                    timerElement.style.background = '#ff6b6b';
+                }
+            }
+        }
+
+        function timeUp() {
+            if (multiplayerMode) {
+                const options = document.querySelectorAll('.option');
+                const question = questions[currentQuestion];
+                
+                options.forEach(option => {
+                    option.style.pointerEvents = 'none';
+                });
+                
+                options[question.correct].classList.add('correct');
+                showMultiplayerFeedback('Tempo esgotado! A resposta correta é: ' + question.options[question.correct], 'incorrect');
+                
+                document.getElementById('nextBtn').style.display = 'inline-block';
+            } else {
+                const options = document.querySelectorAll('.option');
+                const question = questions[currentQuestion];
+                
+                options.forEach(option => {
+                    option.style.pointerEvents = 'none';
+                });
+                
+                options[question.correct].classList.add('correct');
+                showFeedback('Tempo esgotado! A resposta correta é: ' + question.options[question.correct], 'incorrect');
+                
+                document.getElementById('nextBtn').style.display = 'inline-block';
+            }
+        }
+
+        function showResults() {
+            document.querySelector('.quiz-screen').classList.remove('active');
+            document.querySelector('.result-screen').classList.add('active');
+            
+            const correctCount = Math.floor(score / 10);
+            const totalQuestions = questions.length;
+            const percentage = Math.round((correctCount / totalQuestions) * 100);
+            
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('correctAnswers').textContent = correctCount;
+            document.getElementById('totalCorrect').textContent = totalQuestions;
+            
+            // Mostrar estrelas baseado na pontuação
+            const starsContainer = document.getElementById('stars');
+            const starCount = Math.min(5, Math.ceil(percentage / 20));
+            
+            starsContainer.innerHTML = '';
+            for (let i = 0; i < 5; i++) {
+                const star = document.createElement('span');
+                star.className = i < starCount ? 'star' : 'star empty';
+                star.textContent = '⭐';
+                starsContainer.appendChild(star);
+            }
+            
+            // Mensagem final baseada na pontuação
+            let message = '';
+            if (percentage >= 90) {
+                message = 'Excelente! Você é um gênio da matemática! 🧠✨';
+            } else if (percentage >= 70) {
+                message = 'Muito bem! Você tem um ótimo conhecimento matemático! 🎯';
+            } else if (percentage >= 50) {
+                message = 'Bom trabalho! Continue praticando para melhorar! 💪';
+            } else {
+                message = 'Não desanime! A prática leva à perfeição! 📚';
+            }
+            
+            document.getElementById('finalMessage').textContent = message;
+            
+            // Atualizar barra de progresso
+            document.getElementById('progressBar').style.width = '100%';
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            timeLeft = 30;
+            
+            document.querySelector('.result-screen').classList.remove('active');
+            document.querySelector('.quiz-screen').classList.add('active');
+            
+            showQuestion();
+            startTimer();
+        }
+
+        // Inicializar o quiz
+        document.addEventListener('DOMContentLoaded', function() {
+            // Adicionar efeitos de som (opcional)
+            const buttons = document.querySelectorAll('.btn, .option');
+            buttons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Adicionar efeito visual
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 100);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
